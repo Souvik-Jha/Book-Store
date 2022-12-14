@@ -50,7 +50,7 @@ const getSeller = async function (req, res) {
             if (!checkBook) return res.status(400).send({ status: false, message: "id dosenot exist" })
         }
 
-        let getSeller = await db.sellers.findAll({ where: query })
+        let getSeller = await db.sellers.findAll({ where: {...query,isDeleted:false} })
         if (!getSeller.length) return res.status(400).send({ status: false, message: "no such seller" })
         return res.status(200).send({ status: true, message: getSeller })
 
@@ -68,6 +68,7 @@ const updateSeller = async function (req, res) {
 
         let checkSeller = await db.sellers.findOne({ where: { id: sellerId } })
         if (!checkSeller) return res.status(400).send({ status: false, message: "seller dosenot exist" })
+        if(checkSeller.isDeleted==true) return res.status(400).send({status:false,message:"seller info is deleted"})
 
 
         if (!validator.isValidRequestBody(data)) return res.status(400).send({ status: false, message: "provide data to update seller" })
@@ -100,6 +101,16 @@ const updateSeller = async function (req, res) {
 
 const deleteSeller = async function (req, res) {
     try {
+        let sellerId = req.params.sellerId
+
+        //validations
+
+        let checkSeller = await db.sellers.findOne({ where: { id: sellerId } })
+        if (!checkSeller) return res.status(400).send({ status: false, message: "seller dosenot exist" })
+        if(checkSeller.isDeleted==true) return res.status(400).send({status:false,message:"seller info already deleted"})
+
+        let deletedSeller = await db.sellers.update({isDeleted:true}, { where: { id: sellerId } })
+        return res.status(200).send({ status: true, deleteCount: deletedSeller })
 
     } catch (err) {
         console.log(err)

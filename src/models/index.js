@@ -36,7 +36,7 @@ db.sequelize = sequelize
 db.books = require("./bookModel")(sequelize,DataTypes)
 db.customers = require("./customerModel")(sequelize,DataTypes)
 db.sellers = require("./sellerModel")(sequelize,DataTypes)
-db.customer_books = require("./customer_Book")(sequelize,DataTypes)
+db.customer_books = require("./customer_book")(sequelize,DataTypes)
  
 db.sequelize.sync({force: false})
 .then (()=>{

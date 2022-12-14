@@ -51,7 +51,7 @@ const getCustomer = async function (req, res) {
             if (!checkBook) return res.status(400).send({ status: false, message: "id dosenot exist" })
         }
 
-        let getCustomer = await db.customers.findAll({ where: query })
+        let getCustomer = await db.customers.findAll({ where: {...query,isDeleted:false} })
         if (!getCustomer.length) return res.status(400).send({ status: false, message: "no such customer" })
         return res.status(200).send({ status: true, message: getCustomer })
 
@@ -69,6 +69,7 @@ const updateCustomer = async function (req, res) {
 
         let checkCustomer = await db.customers.findOne({ where: { id: customerId } })
         if (!checkCustomer) return res.status(400).send({ status: false, message: "customer dosenot exist" })
+        if(checkCustomer.isDeleted==true) return res.status(400).send({status:false,message:"customer info is deleted"})
 
 
         if (!validator.isValidRequestBody(data)) return res.status(400).send({ status: false, message: "provide data to update customer" })
@@ -102,6 +103,16 @@ const updateCustomer = async function (req, res) {
 
 const deleteCoustomer = async function (req, res) {
     try {
+        let customerId = req.params.customerId
+
+        //validations
+
+        let checkCustomer = await db.customers.findOne({ where: { id: customerId } })
+        if (!checkCustomer) return res.status(400).send({ status: false, message: "customer dosenot exist" })
+        if(checkCustomer.isDeleted==true) return res.status(400).send({status:false,message:"customer info already deleted"})
+
+        let deletedCustomer = await db.customers.update({isDeleted:true}, { where: { id: customerId } })
+        return res.status(200).send({ status: true, deleteCount: deletedCustomer })
 
     } catch (err) {
         console.log(err)

@@ -12,6 +12,10 @@ module.exports = (sequelize,DataTypes)=> {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true
+        },
+        isDeleted: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     })
 

@@ -15,7 +15,7 @@ const addBook = async function (req, res) {
         if (!checkSeller) return res.status(400).send({ status: false, message: "sellerId is not valid" })
 
 
-        const { name, authorName, price, Available, Sold } = data
+        const { name, authorName, price, available, sold } = data
 
         if (!validator.isValidRequestBody(data)) return res.status(400).send({ status: false, message: "provide data to create book" })
 
@@ -28,11 +28,11 @@ const addBook = async function (req, res) {
         if (!price) return res.status(400).send({ status: false, message: "price is required" })
         if (typeof price === "undefined" || typeof price !== "number") return res.status(400).send({ status: false, message: "price should be a number" })
 
-        if (!Available) return res.status(400).send({ status: false, message: "Available is required" })
-        if (typeof Available === "undefined" || typeof Available !== "number") return res.status(400).send({ status: false, message: "Available should be a number" })
+        if (!available) return res.status(400).send({ status: false, message: "Available is required" })
+        if (typeof available === "undefined" || typeof available !== "number") return res.status(400).send({ status: false, message: "Available should be a number" })
 
-        if (Sold) {
-            if (typeof Sold === "undefined" || typeof Sold !== "number") return res.status(400).send({ status: false, message: "Sold should be a number" })
+        if (sold) {
+            if (typeof sold === "undefined" || typeof sold !== "number") return res.status(400).send({ status: false, message: "Sold should be a number" })
         }
 
         data.sellerId = sellerId
@@ -58,9 +58,10 @@ const updateBook = async function (req, res) {
 
         let checkBook = await db.books.findOne({ where: { id: bookId } })
         if (!checkBook) return res.status(400).send({ status: false, message: "sbook dosenot exist" })
+        if(checkBook.isDeleted==true) return res.status(400).send({status:false,message:"book already deleted"})
 
 
-        const { name, authorName, price, Available, Sold } = data
+        const { name, authorName, price, available, sold } = data
 
         if (!validator.isValidRequestBody(data)) return res.status(400).send({ status: false, message: "provide data to update book" })
 
@@ -76,12 +77,12 @@ const updateBook = async function (req, res) {
             if (typeof price === "undefined" || typeof price !== "number") return res.status(400).send({ status: false, message: "price should be a number" })
         }
 
-        if (Available) {
-            if (typeof Available === "undefined" || typeof Available !== "number") return res.status(400).send({ status: false, message: "Available should be a number" })
+        if (available) {
+            if (typeof available === "undefined" || typeof available !== "number") return res.status(400).send({ status: false, message: "Available should be a number" })
         }
 
-        if (Sold) {
-            if (typeof Sold === "undefined" || typeof Sold !== "number") return res.status(400).send({ status: false, message: "Sold should be a number" })
+        if (sold) {
+            if (typeof sold === "undefined" || typeof sold !== "number") return res.status(400).send({ status: false, message: "Sold should be a number" })
         }
 
         //update book
@@ -115,12 +116,12 @@ const getBook = async function (req, res) {
         // }
 
         if (id) {
-            let checkBook = await db.books.findOne({ where: { id: id } })
+            let checkBook = await db.books.findOne({ where: { id: id ,} })
             if (!checkBook) return res.status(400).send({ status: false, message: "id dosenot exist" })
         }
 
 
-        let getBook = await db.books.findAll({ where: query })
+        let getBook = await db.books.findAll({ where: {...query,isDeleted:false} })
         if (!getBook.length) return res.status(400).send({ status: false, message: "no such book" })
         return res.status(200).send({ status: true, message: getBook })
 
@@ -133,6 +134,17 @@ const getBook = async function (req, res) {
 
 const deleteBook = async function (req, res) {
     try {
+        let bookId = req.params.bookId
+
+        //validations
+
+        let checkBook = await db.books.findOne({ where: { id: bookId } })
+        if (!checkBook) return res.status(400).send({ status: false, message: "sbook dosenot exist" })
+        if(checkBook.isDeleted==true) return res.status(400).send({status:false,message:"book already deleted"})
+
+        let deletedBook = await db.books.update({isDeleted:true}, { where: { id: bookId } })
+        return res.status(200).send({ status: true, deleteCount: deletedBook })
+
 
     } catch (err) {
         console.log(err)

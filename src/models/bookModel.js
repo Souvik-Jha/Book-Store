@@ -12,13 +12,17 @@ module.exports = (sequelize,DataTypes)=> {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        Available: {
+        available: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        Sold: {
+        sold: {
             type: DataTypes.INTEGER,
             defaultValue: 0
+        },
+        isDeleted: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     })
 

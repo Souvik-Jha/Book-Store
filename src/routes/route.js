@@ -3,6 +3,7 @@ const router = express.Router();
 const bookController = require("../controllers/bookController")
 const customerController = require("../controllers/customerController")
 const sellerController = require("../controllers/sellerController")
+const customerBookController = require("../controllers/customer_bookController")
 
 
 router.post("/book/:sellerId",bookController.addBook)
@@ -11,16 +12,17 @@ router.get("/book",bookController.getBook)
 router.delete("/book/:bookId",bookController.deleteBook)
 
 
-
-
 router.post("/customer",customerController.addCustomer)
 router.get("/customer",customerController.getCustomer)
 router.put("/customer/:customerId",customerController.updateCustomer)
-router.delete("/customer",customerController.deleteCoustomer)
-
+router.delete("/customer/:customerId",customerController.deleteCoustomer)
 
 
 router.post("/seller",sellerController.addSeller)
+router.get("/seller",sellerController.getSeller)
+router.put("/seller",sellerController.updateSeller)
+router.delete("/seller",sellerController.deleteSeller)
 
+router.post("/customer/:customerId/book/:bookId",customerBookController.purchaseBook)
 
 module.exports = router
