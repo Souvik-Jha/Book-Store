@@ -24,5 +24,8 @@ router.put("/seller",sellerController.updateSeller)
 router.delete("/seller",sellerController.deleteSeller)
 
 router.post("/customer/:customerId/book/:bookId",customerBookController.purchaseBook)
+router.get("/customer/:customerId/book",customerBookController.bookListByCustomer)
+router.get("/seller/:sellerId/book",bookController.bookListBySeller)
+
 
 module.exports = router

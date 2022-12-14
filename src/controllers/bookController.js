@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+const { books } = require("../models");
 const db = require("../models")
 const validator = require("../validators/validate")
 const nameRegex = /^[a-zA-Z ]{2,45}$/;
@@ -153,4 +155,23 @@ const deleteBook = async function (req, res) {
 }
 
 
-module.exports = { addBook, getBook, updateBook, deleteBook }
+
+const bookListBySeller=async function(req,res){
+    try{
+        let sellerId = req.params.sellerId
+        let checkSeller = await db.sellers.findOne({ where: { id: sellerId } })
+        if (!checkSeller) return res.status(400).send({ status: false, message: "Seller dosenot exist" })
+        if (checkSeller.isDeleted == true) return res.status(400).send({ status: false, message: "Seller info already deleted" })
+
+        const result = await db.sellers.findOne({where:{id:sellerId} })
+        const books = await db.books.findAll({where:{sellerId:sellerId,sold:{[Op.ne]:0}}})
+        console.log(result)
+        return res.status(201).send({status:true,message:{result,books: books}})
+
+    }catch(err){
+        console.log(err)
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+module.exports = { addBook, getBook, updateBook, deleteBook, bookListBySeller }

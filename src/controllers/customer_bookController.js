@@ -1,3 +1,4 @@
+const { books } = require("../models")
 const db = require("../models")
 
 const purchaseBook = async function (req, res) {
@@ -14,18 +15,31 @@ const purchaseBook = async function (req, res) {
         let checkCustomer = await db.customers.findOne({ where: { id: customerId } })
         if (!checkCustomer) return res.status(400).send({ status: false, message: "customer dosenot exist" })
         if (checkCustomer.isDeleted == true) return res.status(400).send({ status: false, message: "customer info already deleted" })
-
-        let purchaseBook = await db.customer_books.create({ bookId: bookId, customerId: customerId })
-        //let doc= await db.customer_books.findAll({include:[{model:Books,where:{bookId: bookId, customerId: customerId }}]})
-        let updateBook = await db.books.findOne({where:{id:bookId}})
-        await updateBook.increment({ "sold": quantity})
-
-        return res.status(201).send({status:true,message:purchaseBook})
+        await checkBook.increment({"sold":quantity,"available":-quantity})
+        
+        await checkBook.addCustomer(checkCustomer,{through:{selfGranted:false}})
+        const result = await db.customers.findOne({where:{id:customerId},include:books })
+        return res.status(201).send({status:true,message:result})
         
 } catch (err) {
         console.log(err)
-        return res.status(400).send({ status: false, message: err.message })
+        return res.status(500).send({ status: false, message: err.message })
     }
 }
 
-module.exports = {purchaseBook}
+
+const bookListByCustomer = async function(req,res){
+    try{
+        let customerId = req.params.customerId
+        let checkCustomer = await db.customers.findOne({ where: { id: customerId } })
+        if (!checkCustomer) return res.status(400).send({ status: false, message: "customer dosenot exist" })
+        if (checkCustomer.isDeleted == true) return res.status(400).send({ status: false, message: "customer info already deleted" })
+
+        const result = await db.customers.findOne({where:{id:customerId},include:books })
+        return res.status(201).send({status:true,message:result})
+    }catch(err){
+        console.log(err)
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+module.exports = {purchaseBook,bookListByCustomer}
