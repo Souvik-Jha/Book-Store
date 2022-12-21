@@ -20,8 +20,8 @@ router.delete("/customer/:customerId",customerController.deleteCoustomer)
 
 router.post("/seller",sellerController.addSeller)
 router.get("/seller",sellerController.getSeller)
-router.put("/seller",sellerController.updateSeller)
-router.delete("/seller",sellerController.deleteSeller)
+router.put("/seller/:sellerId",sellerController.updateSeller)
+router.delete("/seller/:sellerId",sellerController.deleteSeller)
 
 router.post("/customer/:customerId/book/:bookId",customerBookController.purchaseBook)
 router.get("/customer/:customerId/book",customerBookController.bookListByCustomer)

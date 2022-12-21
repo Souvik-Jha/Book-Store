@@ -1,5 +1,4 @@
 const { Op } = require("sequelize");
-const { books } = require("../models");
 const db = require("../models")
 const validator = require("../validators/validate")
 const nameRegex = /^[a-zA-Z ]{2,45}$/;
